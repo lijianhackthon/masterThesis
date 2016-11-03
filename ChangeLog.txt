@@ -1,0 +1,96 @@
+Change log of tjuthesis
+
+% 主要针对 tjuthesis_master_v1.0.3 不符合格式要求的地方进行修改，有的解决办法并不是最好的，希望大家一起来完善天大学位论文 Latex 模板！！
+% 由江沙里整理，天津大学2008级本科、2012级硕士，计算机科学与技术专业
+% 邮箱：shalijiang@gmail.com 
+% Date： 2014/12/17
+
+免责声明：
+此版本非官方发布，作者不保证修改后的模板完全符合学校要求，也不对由此带来的风险和损失承担任何责任。
+
+in cover.tex
+
+封面符合“扉页”样例，可根据硕士类型自行修改
+-line 7: \csubjecttitle{学科专业} => \csubjecttitle{专业}
+-line 9: \cauthortitle{研究生}  => \cauthortitle{学生姓名} 
+-line 28： \cdate{\CJKdigits{\the\year} 年\CJKnumber{\the\month} 月 \CJKnumber{\the\day} 日} => \cdate{\CJKdigits{\the\year}年\CJKnumber{\the\month}月}
+
+封面格式：专业、姓名、导师加下划线（须手动加一些空格使下划线长度相同）
+-line 8,10,12: 将要加下划线的部分用命令 \uline{} 包起来，比如: 张井=>\uline{张井}. 注意：用这个命令需要在 package.tex 中添加 \usepackage{ulem} 
+
+
+
+in format.tex
+
+封面格式：中文标题和英文标题字体改为宋体加黑二号
+-line 252: {\hei\erhao\bf{\@ctitle}} => {\song\erhao\textbf{\@ctitle}}
+-line 259: \hei\erhao\bf{\@etitle} => \song\erhao\textbf{\@etitle}
+
+
+
+封面格式：学院和年月位置下移一点
+-line 273: \vspace*{5cm} => \vspace*{7cm}
+-line 274: 行尾加 \vspace*{1ex} 使学院和年月有一定间距
+
+中英文摘要去除页眉页脚，并去除对应目录行
+-line 312,313, 326, 327: 注释掉
+-line 314, 328: 行后添加 \thispagestyle{empty}
+
+“摘要”和“ABSTRACT” 改成宋体加黑二号
+-line 314: \chapter*{\centering\erhao\bf{摘\qquad 要}} => \chapter*{\centering\song\erhao\textbf{摘\qquad 要}}
+-line 328: \chapter*{\centering\erhao\bf{ABSTRACT}} => \chapter*{\centering\song\erhao\textbf{ABSTRACT}}
+
+英文摘要首段顶格
+-line 330: \@eabstract => \noindent\@eabstract
+
+“关键词”和“Key words”字体修改成宋体四号
+-line 322: {\hei\sihao 关键词：} \@ckeywords => {\song\sihao 关键词：} \@ckeywords
+-line 335:  {\sihao\textbf{KEY WORDS：}}  \@ekeywords => {\song\sihao Key words：}  \@ekeywords
+
+图标题若超过两行：中间对齐改成左对齐
+-line 112,114:  delete "\centering"
+
+目录字体全部改为小四
+-line 71-79：change \xiaosan, \sihao to xiaosi 
+
+调整行距
+-line 63: \renewcommand{\baselinestretch}{1.48} => \renewcommand{\baselinestretch}{1.67}
+
+调整图表公式与正文之间的间距
+-line 58,59: 4pt => 8pt 或自己调整
+
+in tjumain.tex
+
+删除目录的目录行
+-line 17: \addcontentsline{toc}{chapter}{目~~~~录} 注释掉这一行
+
+删除目录页的页眉页脚
+-line 15-17: 替换成如下命令
+	\fancypagestyle{plain}{% 设置开章页页眉页脚风格
+		\fancyhf{}
+		\renewcommand{\headrulewidth}{0pt}%
+		\renewcommand{\footrulewidth}{0pt}%
+	}
+-line 24: \tableofcontents 后加入命令
+	\thispagestyle{empty}
+	\fancypagestyle{plain}{% 设置开章页页眉页脚风格
+		\fancyhf{}%
+		\fancyhead[C]{\song\wuhao \leftmark}
+		\fancyfoot[C]{\song\xiaowu ~\thepage~ } %%首页页脚格式
+		\renewcommand{\headrulewidth}{0.5pt}%
+		\renewcommand{\footrulewidth}{0pt}%
+	}
+
+	
+调整页面大小
+in package.tex
+-line 8: 添加 right=31.8 true mm
+
+调整字间距
+in format.tex
+-line 65: \renewcommand{\CJKglue}{\hskip 0.96pt plus 0.08\baselineskip} 注释掉这行
+
+
+注：若没有更新 .bib 文件，用 pdfmake1.bat 编译更快。 
+
+
