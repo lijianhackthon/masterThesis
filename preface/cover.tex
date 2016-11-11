@@ -30,17 +30,17 @@
 % \cdate{二零一二年四月二十五日}
 % \cdate{\the\year 年\the\month 月 \the\day 日} % 此日期显示格式为阿拉伯数字 如2012年4月25日
 \cabstract{
-中文摘要应将学位论文的内容要点简短明了地表达出来，约500~800字左右（限一页），字体为宋体小四号。内容应包括工作目的、研究方法、成果和结论。要突出本论文的创新点，语言力求精炼。为了便于文献检索，应在本页下方另起一行注明论文的关键词（3-7个）。
+拉萨方言作为有调语言，声调对于区分同音字起到了关键的作用。但目前对于拉萨方言具体有几个调还存在争议，这对使用声调信息造成了困难。本研究通过调研相关文献，并结合已录制的拉萨方言音频数据库，采用四个声调的声调系统，建立了拉萨方言带调音素集合。在特征层面，尝试了使用两种不同的基频提取方法提取每一帧的基频值，再结合MFCC参数，构成声调相关的声学特征用来训练声学模型。为了验证声调信息有助于提升拉萨方言的识别结果，本研究搭建了完整的识别系统，使用不同的音素集合和输入特征，训练DNN-HMM模型，得到字级别的识别结果。实验的训练数据31.9小时，测试集2.41小时。识别结果表明，对于DNN模型，使用区分声调的音素集合，配合声调相关的输入特征，字级别错误率与基准系统相比相对下降11.1\%。该研究验证了声调信息对拉萨方言语音识别的重要性。
 }
 
-\ckeywords{关键词1~~关键词2~~关键词3~~关键词4}
+\ckeywords{语音识别~~拉萨方言~~声学模型~~声调}
 
 \eabstract{
-Externally pressurized gas bearing has been widely used in the field of aviation, semiconductor, weave, and measurement apparatus because of its advantage of high accuracy, little friction, low heat distortion, long life-span, and no pollution. In this thesis, based on the domestic and overseas researching……
+As a tonal language, tone of Lhasa dialect is essential to help discriminate homophones. However, it remains controversial how many tones does Lhasa dialect have. This uncertainty brings difficulty to utilize tonal information in ASR of Lhasa dialect. In this study, we created a small-scale corpus and built the ASR system for Lhasa dialect from scratch. We adopted a four-tone pattern and designed a phone set based on the four contour contrasts scheme. After comparing different acoustic modeling methods, we use DNN model to investigate influences of the tonal information on the performance of Lhasa Tibetan speech recognition. The experimental results showed that the character error rate (CER) was improved 11\% after applying the tone based phone set and pitch-related features to DNN-HMM based speech recognition by comparing to that without tonal information. This preliminary study revealed that the tonal information plays an important role in speech recognition of Tibetan Lhasa dialect.
 
 }
 
-\ekeywords{Key Word 1, Key Word 2, Key Word, Key Word 4}
+\ekeywords{ASR, Lhasa dialect, Acoustic model, tone}
 
 \makecover
 
