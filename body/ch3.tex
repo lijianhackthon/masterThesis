@@ -1,4 +1,4 @@
-﻿% !mode:: "tex:utf-8"
+% !mode:: "tex:utf-8"
 
 \chapter{声学模型训练}
 在\ref{acoustic model introduction}中，已经介绍了声学模型在语音识别中的作用，以及如何使用声学模型计算似然概率$P(O|\Omega)$。本章主要介绍声学模型参数估计的问题，包括传统的GMM-HMM模型和目前广泛使用的DNN-HMM模型。
@@ -9,7 +9,7 @@ GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合�
 其中$X$和$\mu$均为k维的向量，$\Sigma$为$k\times k$的协方差矩阵。记作$X\sim \mathcal{N}(\mu,\Sigma)$。
 
 以上是单个的多变量高斯模型，接下来是混合的多变量高斯模型。
-\begin{equation}p(X)=\sum_{m=1}^M \frac{c_m}{(2\pi)^{\frac{k}{2}}|\Sigma_m|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu_m)^T\Sigma_m^{-1}(X-\mu_m)}\end{equation}其中，M表示混合的高斯模型的个数，$m$表示第$m$个高斯模型，$\mu_m$表示第$m$个高斯模型的均值向量，$\Sigma_m$表示第$m$个高斯模型对应的协方差矩阵。当M足够多时，混合的多变量高斯模型可以拟合任意分布。在语音识别中，可以使用混合高斯模型去拟合39维的MFCC向量。
+\begin{equation}p(X)=\sum_{m=1}^M \frac{c_m}{(2\pi)^{\frac{k}{2}}|\Sigma_m|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu_m)^T\Sigma_m^{-1}(X-\mu_m)}\end{equation} 其中，M表示混合的高斯模型的个数，$m$表示第$m$个高斯模型，$\mu_m$表示第$m$个高斯模型的均值向量，$\Sigma_m$表示第$m$个高斯模型对应的协方差矩阵。当M足够多时，混合的多变量高斯模型可以拟合任意分布。在语音识别中，可以使用混合高斯模型去拟合39维的MFCC向量。
 \subsection{GMM模型的参数估计}
 GMM模型的参数包括混合高斯数$M$、每个高斯所占权重$c_m$、每个高斯对应的均值向量$\mu_m$和协方差矩阵$\Sigma_m$。当随机变量$X$的两个维度不相关时，其协方差为零。所以如果随机变量$X$各维度之间都不相关，此时协方差矩阵为对角阵，可以大大减少模型参数。因此，语音识别在提取MFCC特征时，需要做DCT变换将频谱变为倒谱，可以降低MFCC各维度之间的相关性，保证后续的GMM可以使用对角阵。
 
