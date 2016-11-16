@@ -1,8 +1,8 @@
 % !Mode:: "TeX:UTF-8"
 
 
-\ctitle{拉萨方言语音识别声学建模方法研究}  %封面用论文标题，自己可手动断行
-\etitle{A Study on Acoustic Modeling \\for Lhasa Dialect Speech Recognition}
+\ctitle{基于声调信息的拉萨方言声学建模方法研究}  %封面用论文标题，自己可手动断行
+\etitle{A Study on Acoustic Modeling Based on Tonal Information for Lhasa Dialect}
 \caffil{天津大学计算机科学与技术学院} %学院名称
 \csubjecttitle{专业}
 \csubject{\uline{计算机科学与技术}}   %专业
@@ -30,13 +30,13 @@
 % \cdate{二零一二年四月二十五日}
 % \cdate{\the\year 年\the\month 月 \the\day 日} % 此日期显示格式为阿拉伯数字 如2012年4月25日
 \cabstract{
-拉萨方言作为有调语言，声调对于区分同音字起到了关键的作用。但目前对于拉萨方言具体有几个调还存在争议，这对使用声调信息造成了困难。本研究通过调研相关文献，并结合已录制的拉萨方言音频数据库，采用四个声调的声调系统，建立了拉萨方言带调音素集合。在特征层面，尝试了使用两种不同的基频提取方法提取每一帧的基频值，再结合MFCC参数，构成声调相关的声学特征用来训练声学模型。为了验证声调信息有助于提升拉萨方言的识别结果，本研究搭建了完整的识别系统，使用不同的音素集合和输入特征，训练DNN-HMM模型，得到字级别的识别结果。实验的训练数据31.9小时，测试集2.41小时。识别结果表明，对于DNN模型，使用区分声调的音素集合，配合声调相关的输入特征，字级别错误率与基准系统相比相对下降11.1\%。该研究验证了声调信息对拉萨方言语音识别的重要性。
+拉萨方言作为有调语言，声调对于区分同音字起到了关键的作用。但目前对于拉萨方言具体有几个调还存在争议，这给利用声调信息提高语音识别系统性能造成了困难。本研究通过调研相关文献，结合已录制的拉萨方言音频数据库，采用四个声调的声调系统，建立了拉萨方言带调音素集合。在特征层面，尝试使用不同的基频提取方法提取每一帧的基频值，再结合MFCC参数，得到三种不同的声调相关的声学特征用来训练声学模型。为了验证声调信息有助于提升拉萨方言的识别结果，本研究搭建了完整的识别系统，使用不同的音素集合和输入特征，训练DNN-HMM声学模型，得到字级别的识别结果。实验的训练数据共31.9小时，测试集共2.41小时。识别结果表明，无论是在音素集合层面还是在特征层面，加入的声调信息均能提高识别系统准确率。在使用带调音素集合的前提下，两种不同的声调提取方法给系统带来性能上的相对提升分别为11.1\% 和7.9\%，当把由不同的声调特征得到的声学模型进行融合之后，识别准确率的相对提升为16.0\%。 该研究验证了声调信息对拉萨方言语音识别的重要性。
 }
 
 \ckeywords{语音识别~~拉萨方言~~声学模型~~声调}
 
 \eabstract{
-As a tonal language, tone of Lhasa dialect is essential to help discriminate homophones. However, it remains controversial how many tones does Lhasa dialect have. This uncertainty brings difficulty to utilize tonal information in ASR of Lhasa dialect. In this study, we created a small-scale corpus and built the ASR system for Lhasa dialect from scratch. We adopted a four-tone pattern and designed a phone set based on the four contour contrasts scheme. After comparing different acoustic modeling methods, we use DNN model to investigate influences of the tonal information on the performance of Lhasa Tibetan speech recognition. The experimental results showed that the character error rate (CER) was improved 11\% after applying the tone based phone set and pitch-related features to DNN-HMM based speech recognition by comparing to that without tonal information. This preliminary study revealed that the tonal information plays an important role in speech recognition of Tibetan Lhasa dialect.
+As a tonal language, tone of Lhasa dialect is essential to help discriminate homophones. However, it remains controversial how many tones does Lhasa dialect have. This uncertainty brings difficulty to utilize tonal information in ASR of Lhasa dialect. In this study, we adopted a four-tone pattern and designed a phone set based on the four contour contrasts scheme. In the feature level, we have tried different pitch trackers to estimate the fundamental frequency for each frame and then combine fundamental frequencies with MFCC features to train acoustic models. To test whether tonal features are useful, we created a small-scale corpus and built the ASR system for Lhasa dialect from scratch. We use different phoneme set and acoustic features to train the DNN-HMM model. The experimental results showed that both tonal phoneme set and tonal acoustic features can improve the system performance. When using tonal phoneme set, the relative performance improvement by using two different pitch trackers are separately 11.1\% and 7.9\%. When combining these different acoustic models, the relative performance improvement is 16.0\%. This preliminary study revealed that the tonal information plays an important role in speech recognition of Tibetan Lhasa dialect.
 
 }
 

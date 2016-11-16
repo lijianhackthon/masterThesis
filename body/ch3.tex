@@ -2,7 +2,7 @@
 
 \chapter{声学模型训练}
 在\ref{acoustic model introduction}中，已经介绍了声学模型在语音识别中的作用，以及如何使用声学模型计算似然概率$P(O|\Omega)$。本章主要介绍声学模型参数估计的问题，包括传统的GMM-HMM模型和目前广泛使用的DNN-HMM模型。
-\section{传统的GMM-HMM方法}\label{acousticmodel}
+\section{传统的GMM-HMM方法}
 在DNN-HMM模型兴起之前，GMM-HMM作为通用算法，一直在声学模型上占主导地位，几乎所有大型的实用语音识别系统都采用GMM-HMM作为其声学模型。GMM-HMM模型使用HMM模型对语音信号的时序特性建模，使用GMM模型计算每个隐马尔科夫模型的状态发射概率。本节首先介绍GMM模型的参数估计，接着再介绍GMM-HMM模型的训练过程。
 \subsection{GMM模型的定义}
 GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合高斯模型之前，首先要介绍一下高斯分布。当一个连续随机变量$x$的概率密度函数满足：\begin{equation}p(x)=\frac{1}{\sqrt{2\pi\sigma}}e^{\frac{-(x-u)^2}{2\sigma^2}}\end{equation}时，随机变量$x$服从均值为$u$，方差为$\sigma^2$的高斯分布，记作$x\sim \mathcal{N}(\mu,\sigma)$。因为$x$为标量，因此又叫单变量的高斯分布。当$x$变为向量$X=(x_1,x_2,...,x_k)$时，$X$的高斯分布成为多变量的高斯分布，此时$X$的概率密度函数满足\begin{equation}p(X)=\frac{1}{(2\pi)^{\frac{k}{2}}|\Sigma|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu)^T\Sigma^{-1}(X-\mu)} \end{equation}
@@ -10,7 +10,7 @@ GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合�
 
 以上是单个的多变量高斯模型，接下来是混合的多变量高斯模型。
 \begin{equation}p(X)=\sum_{m=1}^M \frac{c_m}{(2\pi)^{\frac{k}{2}}|\Sigma_m|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu_m)^T\Sigma_m^{-1}(X-\mu_m)}\end{equation} 其中，M表示混合的高斯模型的个数，$m$表示第$m$个高斯模型，$\mu_m$表示第$m$个高斯模型的均值向量，$\Sigma_m$表示第$m$个高斯模型对应的协方差矩阵。当M足够多时，混合的多变量高斯模型可以拟合任意分布。在语音识别中，可以使用混合高斯模型去拟合39维的MFCC向量。
-\subsection{GMM模型的参数估计}
+\subsection{GMM模型的参数估计}\label{acousticmodel}
 GMM模型的参数包括混合高斯数$M$、每个高斯所占权重$c_m$、每个高斯对应的均值向量$\mu_m$和协方差矩阵$\Sigma_m$。当随机变量$X$的两个维度不相关时，其协方差为零。所以如果随机变量$X$各维度之间都不相关，此时协方差矩阵为对角阵，可以大大减少模型参数。因此，语音识别在提取MFCC特征时，需要做DCT变换将频谱变为倒谱，可以降低MFCC各维度之间的相关性，保证后续的GMM可以使用对角阵。
 
 EM算法(Expectation-Maximization)是训练GMM模型的主要工具。EM算法为迭代算法，每次迭代都包含两步：E步和M步。其核心思想是：对于有$M$个成分的混合高斯模型，假设观测到的样本点$X$由$M$个成分中某一个成分$GMM_m$的，但具体是哪一个成分并不能观测到。如果能够得到$x$具体是由哪个成分得到的，那么整个模型就不再包含隐变量，可以直接使用最大似然估计(MLE)得到均值向量$\mu_m$以及方差矩阵$\Sigma_m$。EM算法不直接指定$x$具体由哪个成分得到，而是在算法的E步时，计算每个高斯成分对这个样本点的占有概率。得到这些后验概率之后，整个模型不再包含隐变量，接下来就是M步。通过最大似然估计，更新参数$c_m$、$mu_m$、$\Sigma_m$。EM算法的具体公式如下。
