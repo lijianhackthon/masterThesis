@@ -11,11 +11,23 @@
 \vspace{\baselineskip}
 \end{figure}
 从图中可以看出，语音识别系统总共包含五个部分，输入的音频首先经过语音识别前端的特征提取部分，假设有一段长度为T的语音，那么经过特征提取会得到一系列固定长度的频谱特征向量$X_{n}$，n=1,2,...N。语音识别的输出是一连串字符$\omega_{k}$，k=1,2,...K。$\omega$是系统认为最能匹配输入音频的文字序列。因此语音识别的目标可以表示为找到对应的$\omega$ 使之满足
-\begin{equation}\widehat{\omega} = \underset{\omega}{\operatorname{argmax} \frac{P(X|\omega)*P(\omega)}{P(X)}}\end{equation}$P(\omega|X)$
-很难直接计算，根据贝叶斯公式
+%\begin{equation}
+%\widehat{\omega} = \underset{\omega}{\operatorname{argmax} \frac{P(X|\omega)*P(\omega)}{P(X)}}\end{equation}
+
+\begin{equation}
+\widehat{\omega} = \underset{\omega} {\operatorname{argmax}} {\frac{P(X|\omega)*P(\omega)}{P(X)}}
+\end{equation}
+
+$P(\omega|X)$很难直接计算，根据贝叶斯公式
 \begin{equation}P(\omega|X)=\frac{P(X|\omega)*P(\omega)}{P(X)}\end{equation}
 对于给定的输入X，P(X)对所有$\omega$均为定值，因此
-\begin{equation}\widehat{\omega} = \underset{\omega}{\operatorname{argmax} P(X|\omega)*P(\omega)}\end{equation}\label{ASR cost function}
+%\begin{equation}\widehat{\omega} = \underset{\omega}{\operatorname{argmax}} {P(X|\omega)*P(\omega)}}\end{equation}\label{ASR cost function}
+%\begin{equation}\widehat{\omega} = \underset{\omega}{\operatorname{argmax} P(X|\omega)*P(\omega)}\end{equation}\label{ASR cost function}
+
+\begin{equation}
+\widehat{\omega} = \underset{\omega} {\operatorname{argmax}} {P(X|\omega)*P(\omega)}
+\end{equation}\label{ASR cost function}
+
 其中，$P(X|\omega)$代表声学模型，$P(\omega)$代表语言模型。解码器根据声学模型和语言模型对$\omega$的评分，搜索所有可能的$\omega$，得到最优解。以下是语音识别系统各部分的详细介绍。
 \subsection{特征提取}\label{MFCC}
 对于语音识别系统而言，声学信号作为用户的唯一输入，需要承载用于识别的所有声学特征。如果仅对声学信号在时域上的波形进行分析，很难从中提取出对识别有用的特征，因为即使同一个人说同样一段话，单从波形上看都会有很大差别。然而，一个受过训练的人，可以通过语谱图区分不同的元音，因为元音的频率成分相对固定，不同元音的频谱图会有明显的差别。根据这一特性，我们可以在频域上对信号进行分析，从声学信号中提取与频率有关的特征，用来作为识别系统的输入。目前语音识别系统常用的声学特征包括：梅尔频率倒谱系数（MFCC）\cite{davis1980comparison}、感知线性预测(PLP)\cite{hermansky1990perceptual}、Filter-bank\cite{juang1987use} 等。下面以语音识别中常用的MFCC参数为例，详细介绍声学参数的提取过程。
@@ -36,13 +48,16 @@
 
 隐马尔科夫模型是概率模型，用来描述由马尔科夫链随机生成不可观测的状态序列的过程。状态序列里的每个状态都会在当前时刻t生成一个观测，由此组成观测序列。隐马尔可夫模型遵从两个基本假设：1）隐马尔可夫模型在任意t时刻的状态只与前一时刻的状态有关，与其它任意时刻的状态及观测都无关；2）任意时刻的观测只依赖于该时刻的状态，与其它状态及观测无关。基于以上的假设，隐马尔科夫模型可以由三个参数决定：1）状态转移概率；2）观测概率；3）初始状态概率。给定这三个参数，隐马尔科夫模型就定固定了。以下是隐马尔科夫模型三个参数的定义：设S是所有可能的状态的集合，M是所有可能的观测的集合。$$S={s_1,s_2,...,s_H}, \quad M={m_1,m_2,...,m_K}$$，其中，H为所有可能的状态数，K为所有可能的观测数。现有长度为N的状态序列$\Theta$，以及状态序列对应的观测序列$\Phi$。$$\Theta=(\theta_1,\theta_2,...,\theta_N), \quad \Phi=(\phi_1,\phi_2,...,\phi_N)$$则状态转移概率矩阵:
 \begin{eqnarray}
-  A=[a_{ij}]_{H\times H} \\
-  a_{ij} = P(\theta_{t+1}=s_j | \theta_t=s_i), i=1,2,...,H; j=1,2,...,H
+%\begin{aligned}
+  &A=[a_{ij}]_{H\times H} \\
+  &a_{ij} = P(\theta_{t+1}=s_j | \theta_t=s_i), i=1,2,...,H; j=1,2,...,H
+%\end{aligned}
 \end{eqnarray}
+
 $a_{ij}$代表t时刻的状态$s_i$在t+1时刻跳转到$s_j$的概率。观测概率矩阵可以用B来表示:
 \begin{eqnarray}
-  B=[b_j(n)]_{H\times K} \\
-  b_j(n) = P(\phi_t=m_n | \theta_t=s_j), n=1,2,...,K; j=1,2,...,H
+  &B=[b_j(n)]_{H\times K} \\
+  &b_j(n) = P(\phi_t=m_n | \theta_t=s_j), n=1,2,...,K; j=1,2,...,H
 \end{eqnarray}
 $b_j(n)$代表t时刻处于状态j的前提下，观测到$\phi_n$的概率。初始状态概率向量可以用$\Psi$表示：
 \begin{eqnarray}
@@ -59,7 +74,7 @@ $\psi_i$代表初始时刻处于状态$s_i$的概率。
 
 3) 模型参数训练问题。已知观测序列$\Phi$，计算模型参数$(A,B,\Psi)$，使得似然概率$P(\Phi|\Pi)$最大。
 
-对应到语音识别中，隐马尔科夫模型被用来对连续的声学特征序列建模。假设现在有一个英文数字0-9的识别任务，如何利用隐马尔科夫模型识别数字呢？根据\ref{MFCC}中MFCC特征的提取过程，一个时长为1s的音频，如果每10ms移动一帧，那么会得到将近100个39维的MFCC 特征向量。这些特征向量对应的就是观测序列$\Phi=(\phi_1,\phi_2,...,\phi_N)$。在语音识别中，首先会给语音的最小组成单位建立隐马尔科夫模型，对于英语来说，最小单位就是音素。而词表中的每个单词都能由音素构成。比如‘one’这个单词，可以用$/W/$、$/AH/$、$/N/$ 这三个音素来表示其发音。对音素建立隐马尔科夫模型一般采用三个状态，分别对应发音的起始阶段、中间阶段和结束过程。表示整个单词的隐马尔科夫模型就是用组成其发音的音素的隐马尔科夫模型串联起来的。图~\ref{fig:figure2}~表示了one 这个单词对应的隐马尔科夫模型，其它9 个数字对应的隐马尔科夫模型同理。
+对应到语音识别中，隐马尔科夫模型被用来对连续的声学特征序列建模。假设现在有一个英文数字0-9的识别任务，如何利用隐马尔科夫模型识别数字呢？根据\ref{MFCC}小节中MFCC特征的提取过程，一个时长为1s的音频，如果每10ms移动一帧，那么会得到将近100个39维的MFCC 特征向量。这些特征向量对应的就是观测序列$\Phi=(\phi_1,\phi_2,...,\phi_N)$。在语音识别中，首先会给语音的最小组成单位建立隐马尔科夫模型，对于英语来说，最小单位就是音素。而词表中的每个单词都能由音素构成。比如‘one’这个单词，可以用$/W/$、$/AH/$、$/N/$ 这三个音素来表示其发音。对音素建立隐马尔科夫模型一般采用三个状态，分别对应发音的起始阶段、中间阶段和结束过程。表示整个单词的隐马尔科夫模型就是用组成其发音的音素的隐马尔科夫模型串联起来的。图~\ref{fig:figure2}~表示了one 这个单词对应的隐马尔科夫模型，其它9 个数字对应的隐马尔科夫模型同理。
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=1.0\textwidth]{figure2}
@@ -67,9 +82,11 @@ $\psi_i$代表初始时刻处于状态$s_i$的概率。
 \vspace{\baselineskip}
 \end{figure}
 
-有了词表里所有单词对应的隐马尔科夫模型$\Pi_i,i=0,1,...9$，同时也有了观测序列$\Phi=(\phi_1,\phi_2,...,\phi_N)$，那么如何识别当前音频到底是哪一个数字呢？这就对应到了隐马尔科夫模型的第一个基本问题，概率计算问题。我们需要分别计算$P(\Phi|\Pi_i), i=0,1,...,9$这10个似然概率。其中似然概率最大的模型对应的数字就是识别结果。\begin{equation}result=\underset{i}{\operatorname{argmax} P(\Phi|\Pi_i)} \end{equation}
-
-图~\ref{fig:bighmm}~为识别0-9十个数字时整体的隐马尔科夫模型框架。以上均为语音识别的识别过程，有关具体的模型参数训练问题，将在~\ref{acousticmodel}~中详细介绍。
+有了词表里所有单词对应的隐马尔科夫模型$\Pi_i,i=0,1,...9$，同时也有了观测序列$\Phi=(\phi_1,\phi_2,...,\phi_N)$，那么如何识别当前音频到底是哪一个数字呢？这就对应到了隐马尔科夫模型的第一个基本问题，概率计算问题。我们需要分别计算$P(\Phi|\Pi_i), i=0,1,...,9$这10个似然概率。其中似然概率最大的模型对应的数字就是识别结果。
+\begin{equation}result=\underset{i}{\operatorname{argmax} } ~P(\Phi|\Pi_i) \end{equation}
+%\ begin{equation}result=\underset{i}{\operatorname{argmax} ~P(\Phi|\Pi_i)} \end{equation}
+%\begin{equation}result=\underset{i}{\operatorname{argmax}} P(\Phi|\Pi_i)} \end{equation}
+图~\ref{fig:bighmm}~为识别0-9十个数字时整体的隐马尔科夫模型框架。以上均为语音识别的识别过程，有关具体的模型参数训练问题，将在~\ref{acousticmodel}~节中详细介绍。
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=1.0\textwidth]{bighmm}
@@ -78,23 +95,30 @@ $\psi_i$代表初始时刻处于状态$s_i$的概率。
 \end{figure}
 
 \subsection{语言模型}
-根据公式\ref{ASR cost function}，可以看到目标函数包含$P(\omega)$这一项。$\omega$表示单词的序列，$P(\omega)$代表这一单词序列的先验概率。为什么要加入这一项先验概率呢？根据\ref{acoustic model introduction}，我们已经知道声学模型可以计算似然概率$P(O|\omega)$，其中$O$代表观测向量，$\omega$ 代表单词序列。但是如果仅凭声学模型得到的结果去判断最可能的单词序列$\omega$的话，没办法处理语言中同音字的情况。比如英语里的'good four me'和'good for me'，这两组句子从发音上将几乎没有差别，因此通过声学模型得到的结果也几乎相同。但是，'good for me'更符合英语的规则和使用习惯，$P('good\quad for\quad me')$要明显大于$P('good\quad four\quad me')$。因此，在目标函数中加入语言规则的先验知识，能更好地区分在声学特征上比较容易混淆的语音。然而，语言模型中对于语言的知识并不是通过显式地规定语法规则，而是通过统计模型。比较常用的语言模型为N-gram模型。
+根据公式\ref{ASR cost function}，可以看到目标函数包含$P(\omega)$这一项。$\omega$表示单词的序列，$P(\omega)$代表这一单词序列的先验概率。为什么要加入这一项先验概率呢？根据\ref{acoustic model introduction}节，我们已经知道声学模型可以计算似然概率$P(O|\omega)$，其中$O$代表观测向量，$\omega$ 代表单词序列。但是如果仅凭声学模型得到的结果去判断最可能的单词序列$\omega$的话，没办法处理语言中同音字的情况。比如英语里的'good four me'和'good for me'，这两组句子从发音上将几乎没有差别，因此通过声学模型得到的结果也几乎相同。但是，'good for me'更符合英语的规则和使用习惯，$P('good\quad for\quad me')$要明显大于$P('good\quad four\quad me')$。因此，在目标函数中加入语言规则的先验知识，能更好地区分在声学特征上比较容易混淆的语音。然而，语言模型中对于语言的知识并不是通过显式地规定语法规则，而是通过统计模型。比较常用的语言模型为N-gram模型。
 
 N-gram模型是一种统计模型，由于其简单有效，在语音识别中得到了广泛的应用。语言模型的目标为计算字符串$\omega$作为一个句子出现的概率$P(\omega)$。对于一个由$m$个字符组成的序列$\omega=c_1 c_2...c_m$而言，
-\begin{eqnarray}
-  P(\omega) = P(c_1)P(c_2|c_1)P(c_3|c_1 c_2)...P(c_m|c_1 c_2...c_{m-1}) \\
+%\begin{eqnarray}
+%  P(\omega) = P(c_1)P(c_2|c_1)P(c_3|c_1 c_2)...P(c_m|c_1 c_2...c_{m-1}) \\
+%          & = \prod\limits_{i=1}^m P(c_i|c_1...c_{i-1})
+%\end{eqnarray}
+\begin{equation}
+\begin{aligned}
+  P(\omega)& = P(c_1)P(c_2|c_1)P(c_3|c_1 c_2)...P(c_m|c_1 c_2...c_{m-1}) \\
           & = \prod\limits_{i=1}^m P(c_i|c_1...c_{i-1})
-\end{eqnarray}
-上式中，产生第$i$个字符$c_i$的概率是由已经产生的$i-1$个字符$c_1 c_2...c_{i-1}$决定的。字符序列$c_1 c_2...c_{i-1}$可以看成是$c_i$的历史信息。对于这种计算方法，假设词表长度为N，那么$c_1 c_2...c_{i-1}$将会有$N^{i-1}$种可能，当$i$增加到一定程度，几乎已经无法计算$P(c_i|c_1...c_{i-1})$。因此，需要对模型做出一定的简化。N-gram模型假设，对于预测当前字符$c_i$产生的概率，只需要参考前N-1个已经出现的字符$c_{i-n+1} c_{i-n+2}, c_{i-1}$，而不需要考虑所有的历史信息。这样一来，$P(\omega)$的计算公式就变为：
-\begin{equation}P(\omega) = \prod\limits_{i=1}^m P(c_i|c_{i-n+1}^{i-1})\end{equation}
-通常N的取值不能太大，否则依旧会出现计算量过大导致参数无法估计的问题，所以通常选取N=1,2,3。n=1时，第i个词出现的概率独立于前面的词，称为unigram；n=2时，第i个词出现的概率只与前一个词$c_(i-1)$有关，称为bigram；n=3的情况最多，即第n个词出现的概率与前两个词$c_(i-1)^(i-2)$有关，记为trigram。因为句子中每个词出现的概率可以通过统计语料中该词出现的次数得到。以unigram为例，为了计算条件概率$P(c_i|c_{i-1})$，可以通过统计二元词序列出现的次数来计算得到，计算公式如下：
+\end{aligned}
+\end{equation}
+
+上式中，产生第$i$个字符$c_i$的概率是由已经产生的$i-1$个字符$c_1 c_2...c_{i-1}$决定的。字符序列$c_1 c_2...c_{i-1}$可以看成是$c_i$的历史信息。对于这种计算方法，假设词表长度为N，那么$c_1 c_2...c_{i-1}$将会有$N^{i-1}$种可能，当$i$增加到一定程度，几乎已经无法计算$P(c_i|c_1...c_{i-1})$。因此，需要对模型做出一定的简化。N-gram模型假设，对于预测当前字符$c_i$产生的概率，只需要参考前N-1个已经出现的字符$c_{i-N+1} c_{i-N+2},...,c_{i-1}$，而不需要考虑所有的历史信息。这样一来，$P(\omega)$ 的计算公式就变为：
+\begin{equation}P(\omega) = \prod\limits_{i=1}^m P(c_i|c_{i-N+1}^{i-1})\end{equation}
+通常N的取值不能太大，否则依旧会出现计算量过大导致参数无法估计的问题，所以通常选取N=1,2,3。N=1时，第i个词出现的概率独立于前面的词，称为unigram；N=2时，第i个词出现的概率只与前一个词$c_{i-1}$有关，称为bigram；N=3的情况最多，即第n个词出现的概率与前两个词$c_{i-1}c_{i-2}$有关，记为trigram。句子中每个词出现的概率可以通过统计语料中该词出现的次数得到。以unigram 为例，为了计算条件概率$P(c_i|c_{i-1})$，可以通过统计二元词序列出现的次数来计算得到，计算公式如下：
 \begin{equation}P(c_i|c_{i-1})=\frac{count(c_{i-1} c_i)}{\sum\limits_{c_i} count(c_{i-1} c_i)})\end{equation}
-在使用N-gram语言模型计算出现的概率时，由于训练数据稀疏，对于很多正常的句子$\omega$，其出现的概率$P(\omega)=0$。 这就意味着，在语音识别的应用中，即使句子$\omega$在声学模型下的打分很高，但是由于$P(\omega)=0$，使得识别结果永远不会出现$\omega$。解决这种错误的一种典型的方法为平滑方法，其基本思想为提高低概率，降低高概率，从而解决零概率的问题。实际应用中最简单的平滑方法之一为加法平滑，基本思想为：假设每一个n元语法发生的次数比实际统计的次数多$\delta$ 次，$0\leqslant \delta \leqslant 1$。此时：
+在使用N-gram语言模型计算句子出现的概率时，由于训练数据稀疏，对于很多正常的句子$\omega$，其出现的概率$P(\omega)=0$。 这就意味着，在语音识别的应用中，即使句子$\omega$在声学模型下的打分很高，但是由于$P(\omega)=0$，使得识别结果永远不会出现$\omega$。解决这种错误的一种典型的方法为平滑方法，其基本思想为提高低概率，降低高概率，从而解决零概率的问题。实际应用中最简单的平滑方法之一为加法平滑，基本思想为：假设每一个n元语法发生的次数比实际统计的次数多$\delta$ 次，$0\leqslant \delta \leqslant 1$。此时：
 \begin{equation}P_{add}(c_i|c_{i-n+1}^{i-1})=\frac{\delta+count(c_{i-n+1}^{i})}{\delta \lvert V\rvert\ + \sum\limits_{c_i} count(c_{i-n+1}^i)}\end{equation}
 其中，$\lvert V\rvert$表示词汇表单词的个数。此外，常用的平滑方法还有古德-图灵估计法，Katz平滑方法，Jelinek-Mercer平滑方法，绝对减值法，Kneser-Ney平滑方法等\cite{goodman2001bit}。
 
 \subsection{基于WFST的解码图}
-对于大词汇量连续语音识别，需要加入语言模型来提高识别的准确性，减少由同音字或易混淆语境导致的识别错误。但如何才能将语言模型与声学模型配合起来呢？当词汇量很小时，比如0-9个数字的孤立词识别~\ref{fig:bighmm}~。语言模型一般用一元语法模型，先验概率$P(\omega_i)$可以直接填在每个单词的HMM模型的后面。但如果识别任务变为大词汇量连续语音识别时，语言模型一般采用二元或三元语法，此时就无法直接在每个单词的HMM模型上直接添加语言模型。并且，对于大词汇量任务来说，不同单词之间需要共用音素的隐马尔科夫模型，所以还需要考虑发音词典。同时，当识别任务为连续语音识别时，必须要考虑到协同发音的影响，同样一个音素，在不同的语境下，发音差别很大，这就需要区分不同上下文下的音素，一般使用三音素模型，即只考虑前一个和后一个音素对当前音素的影响。综上，对于大词汇量连续语音识别，需要加入语言模型、发音词典、音素的上下文关系。如何把所有这些音素同时考虑进去，构建一个大的隐马尔科夫模型呢？这就需要引入有限状态机的概念。
+对于大词汇量连续语音识别，需要加入语言模型来提高识别的准确性，减少由同音字或易混淆语境导致的识别错误。但如何才能将语言模型与声学模型配合起来呢？当词汇量很小时，比如图~\ref{fig:bighmm}~中0-9个数字的孤立词识别。语言模型一般用一元语法模型，先验概率$P(\omega_i)$ 可以直接加在每个单词的HMM模型的后面。但如果识别任务变为大词汇量连续语音识别时，语言模型一般采用二元或三元语法，此时就无法直接在每个单词的HMM模型上直接添加语言模型。并且，对于大词汇量任务来说，不同单词之间需要共用音素的隐马尔科夫模型，所以还需要一个发音词典。同时，当识别任务为连续语音识别时，必须要考虑到协同发音的影响，同样一个音素，在不同的语境下，发音差别很大，这就需要区分不同上下文下的音素，一般使用三音素模型，即只考虑前一个和后一个音素对当前音素的影响。综上，对于大词汇量连续语音识别，需要加入语言模型、发音词典、音素的上下文关系。如何把所有这些因素同时考虑进去，构建一个大的隐马尔科夫模型呢？这就需要引入有限状态机的概念。
 
 这里有两种类型的有限状态机，一种是有限状态接收器(Finite State Acceptor)。它包含一个起始状态，一个或多个终止状态，不同状态之间的跳转由一个带有向箭头的弧表示，弧上的符号代表状态跳转时，FSA的输出。图~\ref{fig:fsa}~为一个有限状态接收器的例子，图中弧上的符号$\epsilon$代表状态跳转时输出为空字符。
 \begin{figure}[htbp]
@@ -114,7 +138,7 @@ N-gram模型是一种统计模型，由于其简单有效，在语音识别中�
 \vspace{\baselineskip}
 \end{figure}
 
-与FSA类型，FST也有接收状态。当FST由起始状态跳转到终止状态时，过程中每个弧的输入符号按顺序排列得到字符串s，每个弧的输出符号按顺序排列得到字符串t，此时
+与FSA类似，FST也有接收状态。当FST由起始状态跳转到终止状态时，过程中每个弧的输入符号按顺序排列得到字符串s，每个弧的输出符号按顺序排列得到字符串t，此时
 成FST可接收(s,t)。
 
 有限状态机接收器A与有限状态转换器T之间可进行组合操作，用符号$AoT$表示。通过组合(Composition)操作，T可以替换A的每条弧上标签，得到一个新的有限状态接收器B，T上的每条弧上的输入符号和输出符号代表替换规则。新生成的B接收字符串t，当且仅当A接收字符串s,且T接收(s,t)。图~\ref{fig:composition}~表示FST与FSA通过组合操作，生成新的FSA。
@@ -135,17 +159,20 @@ N-gram模型是一种统计模型，由于其简单有效，在语音识别中�
 
 有了加权有限状态接收器和加权有限状态转换器，可以通过组合操作，将语言模型、发音词典、音素的上下文信息、音素的隐马尔科夫模型整合到一起，最终形成一个整体的隐马尔科夫模型。具体操作是，首先将语言模型用加权有限状态接收器G表示，然后通过设计加权有限状态转换器，将语言模型里的每个单词替换成其对应的发音组合，得到新的加权有限状态接收器P。接着再通过组合操作，将P中所有上下文无关音素变成其对应的上下文相关音素，得到新的加权有限状态接收器C。最后，再经过一步组合操作，将C中的所有上下文相关音素，转换成对应的三个状态的隐马尔科夫模型，此时新得到的加权有限状态接收器，就是最终的解码图D。整个过程用公式可以表示为\begin{equation}D=G\quad o \quad T_{Words\rightarrow CI\_phones} \quad o \quad T_{CI\_phones\rightarrow CD\_phones} \quad o \quad T_{CD\_phones \rightarrow HMMs}\end{equation}
 
-得到整个解码图之后，再通过维特比算法，找到最优路径，得到最终的识别结果。
+得到整个解码图之后，再通过维特比算法，就可以找到最优路径，得到最终的识别结果。
 
 \subsection{评价指标}
 对于语音识别任务来说，比较常用评价指标为词级别错误率(Word Error Rate)。对于语音识别的结果，总共包含三种类型的错误，分别是替换错误、删除错误、插入错误。从字面意思上来理解，替换错误指的是原本句子里的某个词在识别结果里被错误替换成其它的词；删除错误指的是原本句子里出现的某个词，在识别结果里被错误地去掉了；插入错误错误指的是识别结果里出现了原本句子里没有出现过的某个词。这三种错误无论出现哪一种，都会使得识别性能下降。所以语音识别中使用的各种算法的目的，就是要尽量降低这三种错误出现的可能，也就是要降低词级别错误率。词级别错误率的公式表述如下：
 \begin{equation}WER=100\times\frac{count(Deletion)+count(Insertion)+count(Substitution)}{count(Words)}\end{equation}
 其中，$count(words)$代表原始句子的单词总数，$count(Deletion)$、$count(Insertion)$、$count(Substitution)$分别代表识别结果中出现删除错误、插入错误、替换错误的个数。
+
+除了词级别错误率，比较常用的还有字级别错误率(Character Error Rate)和音素级别错误率(Phone Error Rate)，区别就是字级别错误率(CER)统计的最小单元是单个字，比如汉字和藏文字；音素级别错误率(PER)统计的最小单元是表示发音的音素，比如汉语的声韵母。在本论文中，拉萨方言识别系统采用字级别错误率(CER)作为评价指标。
+
 \section{Kaldi工具箱}
 Kaldi是一款基于Apache License v2.0开放协议的开源语音识别工具箱。相比于其它现存的语音识别工具箱，Kaldi工具箱的特点可以总结为以下几个方面：
 \begin{enumerate}
-  \item 整合了有限状态转换器(Finite State Transducers)，Kaldi工具箱引入了外部库OpenFst\cite{allauzen2007openfst}，OpenFst是一款开源的处理加权有限状态机的库函数。
-  \item 支持矩阵运算操作。Kaldi基于标准的线性代数库BLAS和LAPACK，构建了高效的矩阵算法库。
+  \item 整合了有限状态转换器(Finite State Transducers)。Kaldi工具箱引入了外部库OpenFst\cite{allauzen2007openfst}，OpenFst是一款开源的处理加权有限状态机的库函数。
+  \item 支持矩阵运算操作。Kaldi基于标准的线性代数库BLAS和LAPACK，构建了高效的矩阵运算函数库。
   \item 算法在设计上注重通用性和可扩展性。
   \item 基于Apache v2.0协议，更加开放。
   \item 提供了很多语音识别标准数据库的完整解决方案。比如LDC机构提供的WSJ(Wall Street Journal)数据库、RM(Resource Management)数据库等都有完整的代码可以从头搭建语音识别系统。
@@ -163,8 +190,12 @@ Kaldi是一款基于Apache License v2.0开放协议的开源语音识别工具�
 \begin{itemize}
   \item 声学特征提取。Kaldi目前已支持多种类型的声学特征，包括MFCC、PLP、filter-bank、bottle-neck features等。同时也提供了多种线性变换和仿射变换，例如：VTLN(Vocal Tract Length Normalization)、CMVN(Cepstral Mean and Variance Normalization)、LDA(Linear Discriminant Analysis)、HLDA(Heteroscedastic Linear Discriminant Analysis)等。
   \item 声学模型训练。Kaldi工具箱主要关注于声学模型的训练，目前已实现了包括GMM、SGMM、DNN、RNN、LSTM在内的几乎所有声学模型，同时也提供了很多判别式训练方法，比如MPE(Minimum Phone Error)、MMI(Maximum Mutual Information)等，另外还包括VTLN(Vocal Tract Length Normalization)、fMLLR(feature Maximum Likelihood Linear Regression)等在内的说话人自适应算法。
-  \item 语言模型训练。Kaldi本身并不提供语言模型的训练工具，语言模型的训练可以使用IRSTLM或者SRILM等开源工具实现。由于Kaldi工具箱使用基于FST(Finite State Transducer)框架的训练和解码方法，一般常用的语言模型以ARPA格式存储，因此Kaldi提供了将ARPA格式的数据转成FSTs的相应工具。
+  \item 对常用格式的语言模型的支持。Kaldi本身并不提供语言模型的训练工具，语言模型的训练可以使用IRSTLM或者SRILM等开源工具实现。由于Kaldi工具箱使用基于FST(Finite State Transducer)框架的训练和解码方法，一般常用的语言模型以ARPA格式存储，因此Kaldi提供了将ARPA格式的数据转成FSTs的相应工具。
   \item 构建解码图。Kaldi构建解码图的过程基于WFST\cite{mohri2002weighted}，Kaldi提供了一系列对解码图的优化操作，如Determinization、Minimization等。
 \end{itemize}
 
 本论文中所有声学模型的训练全部在Kaldi工具箱上完成。
+
+\section{拉萨方言语料库}
+
+

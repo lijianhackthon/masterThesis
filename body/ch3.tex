@@ -1,11 +1,11 @@
 % !mode:: "tex:utf-8"
 
 \chapter{声学模型训练}
-在\ref{acoustic model introduction}中，已经介绍了声学模型在语音识别中的作用，以及如何使用声学模型计算似然概率$P(O|\Omega)$。本章主要介绍声学模型参数估计的问题，包括传统的GMM-HMM模型和目前广泛使用的DNN-HMM模型。
+在\ref{acoustic model introduction}节中，已经介绍了声学模型在语音识别中的作用，以及如何使用声学模型计算似然概率$P(O|\Omega)$。本章主要介绍声学模型参数估计的问题，包括传统的GMM-HMM模型和目前广泛使用的DNN-HMM模型。
 \section{传统的GMM-HMM方法}
 在DNN-HMM模型兴起之前，GMM-HMM作为通用算法，一直在声学模型上占主导地位，几乎所有大型的实用语音识别系统都采用GMM-HMM作为其声学模型。GMM-HMM模型使用HMM模型对语音信号的时序特性建模，使用GMM模型计算每个隐马尔科夫模型的状态发射概率。本节首先介绍GMM模型的参数估计，接着再介绍GMM-HMM模型的训练过程。
 \subsection{GMM模型的定义}
-GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合高斯模型之前，首先要介绍一下高斯分布。当一个连续随机变量$x$的概率密度函数满足：\begin{equation}p(x)=\frac{1}{\sqrt{2\pi\sigma}}e^{\frac{-(x-u)^2}{2\sigma^2}}\end{equation}时，随机变量$x$服从均值为$u$，方差为$\sigma^2$的高斯分布，记作$x\sim \mathcal{N}(\mu,\sigma)$。因为$x$为标量，因此又叫单变量的高斯分布。当$x$变为向量$X=(x_1,x_2,...,x_k)$时，$X$的高斯分布成为多变量的高斯分布，此时$X$的概率密度函数满足\begin{equation}p(X)=\frac{1}{(2\pi)^{\frac{k}{2}}|\Sigma|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu)^T\Sigma^{-1}(X-\mu)} \end{equation}
+GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合高斯模型之前，首先要介绍一下高斯分布。当一个连续随机变量$x$的概率密度函数满足：\begin{equation}p(x)=\frac{1}{\sqrt{2\pi\sigma}}e^{\frac{-(x-u)^2}{2\sigma^2}}\end{equation}时，随机变量$x$服从均值为$u$，方差为$\sigma^2$的高斯分布，记作$x\sim \mathcal{N}(\mu,\sigma^2)$。因为$x$为标量，因此又叫单变量的高斯分布。当$x$变为向量$X=(x_1,x_2,...,x_k)$时，$X$的高斯分布成为多变量的高斯分布，此时$X$的概率密度函数满足\begin{equation}p(X)=\frac{1}{(2\pi)^{\frac{k}{2}}|\Sigma|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu)^T\Sigma^{-1}(X-\mu)} \end{equation}
 其中$X$和$\mu$均为k维的向量，$\Sigma$为$k\times k$的协方差矩阵。记作$X\sim \mathcal{N}(\mu,\Sigma)$。
 
 以上是单个的多变量高斯模型，接下来是混合的多变量高斯模型。
@@ -13,7 +13,7 @@ GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合�
 \subsection{GMM模型的参数估计}\label{acousticmodel}
 GMM模型的参数包括混合高斯数$M$、每个高斯所占权重$c_m$、每个高斯对应的均值向量$\mu_m$和协方差矩阵$\Sigma_m$。当随机变量$X$的两个维度不相关时，其协方差为零。所以如果随机变量$X$各维度之间都不相关，此时协方差矩阵为对角阵，可以大大减少模型参数。因此，语音识别在提取MFCC特征时，需要做DCT变换将频谱变为倒谱，可以降低MFCC各维度之间的相关性，保证后续的GMM可以使用对角阵。
 
-EM算法(Expectation-Maximization)是训练GMM模型的主要工具。EM算法为迭代算法，每次迭代都包含两步：E步和M步。其核心思想是：对于有$M$个成分的混合高斯模型，假设观测到的样本点$X$由$M$个成分中某一个成分$GMM_m$的，但具体是哪一个成分并不能观测到。如果能够得到$x$具体是由哪个成分得到的，那么整个模型就不再包含隐变量，可以直接使用最大似然估计(MLE)得到均值向量$\mu_m$以及方差矩阵$\Sigma_m$。EM算法不直接指定$x$具体由哪个成分得到，而是在算法的E步时，计算每个高斯成分对这个样本点的占有概率。得到这些后验概率之后，整个模型不再包含隐变量，接下来就是M步。通过最大似然估计，更新参数$c_m$、$mu_m$、$\Sigma_m$。EM算法的具体公式如下。
+EM算法(Expectation-Maximization)是训练GMM模型的主要工具。EM算法为迭代算法，每次迭代都包含两步：E步和M步。其核心思想是：对于有$M$个成分的混合高斯模型，假设观测到的样本点$X$服从$M$个成分中的某一个成分$GMM_m$的概率分布，但不能确定具体是哪一个成分。如果能够得到$x$具体是由哪个成分得到的，那么整个模型就不再包含隐变量，可以直接使用最大似然估计(MLE)得到均值向量$\mu_m$ 以及方差矩阵$\Sigma_m$。EM算法不直接指定$x$具体由哪个成分得到，而是在算法的E步时，计算每个高斯成分对这个样本点的占有概率。得到这些后验概率之后，整个模型不再包含隐变量，接下来就是M步。通过最大似然估计，更新参数$c_m$、$mu_m$、$\Sigma_m$。EM算法的具体公式如下。
 
 E步：
 \begin{equation}
@@ -22,27 +22,34 @@ E步：
 
 M步：
 \begin{eqnarray}
-  c_m^{j+1}=\frac{1}{N}\sum_{t=1}^N h_m^{j}(t) \\
-  \mu_m^{j+1}=\frac{\sum_{t=1}{N} h_m{(j)}(t)X^{(t)}}{\sum_{t=1}^{N} h_m^{(j)}(t)} \\
-  \Sigma_m^{(j+1)}=\frac{\sum_{t=1}^{N} h_m^{(j)}(t)[X^{(t)}-\mu_m^{(t)}][X^{(t)}-\mu_m^{(j)}]^T}{\sum_{t=1}^{N} h_m^{(j)}(t)}
+  &c_m^{(j+1)}=\frac{1}{N}\sum_{t=1}^N h_m^{(j)}(t) \\
+  &\mu_m^{(j+1)}=\frac{\sum_{t=1}^{N} h_m^{(j)}(t)X^{(t)}}{\sum_{t=1}^{N} h_m^{(j)}(t)} \\
+  &\Sigma_m^{(j+1)}=\frac{\sum_{t=1}^{N} h_m^{(j)}(t)[X^{(t)}-\mu_m^{(j)}][X^{(t)}-\mu_m^{(j)}]^T}{\sum_{t=1}^{N} h_m^{(j)}(t)}
 \end{eqnarray}
 其中，M表示共有M个高斯成分、N表示样本点个数、$X^{(t)}$表示第$t$个样本点、$m$表示第$m$个高斯成分、$c_m$为第$m$个高斯所占权重、$\mu_m$为第$m$个高斯的均值向量、$\Sigma_m$为第$m$个高斯的协方差矩阵。
 
-由于第一次迭代时，需要已经各个高斯成分的参数，因此使用EM算法时需要初始化，并且，EM算法收敛于局部最优。
+由于第一次迭代时，需要已知各个高斯成分的参数，因此使用EM算法时需要初始化，并且，EM算法收敛于局部最优。
 \subsection{GMM-HMM模型训练}
 GMM-HMM模型训练使用前后向算法，又称作Baum-Welch算法。Baum-Welch算法是EM算法在训练HMM模型上的具体应用。用前后向算法估计HMM模型状态转移概率的整体流程如下：
+%\begin{enumerate}
+%  \item 首先通过前向算法，计算$\alpha(S,t)$和$P(X)$。
+%  \item 再通过后向算法，计算$\beta(S,t)$。
+%  \item 对于每一个弧$S\rightarrow^{X_t}S^{'}$和$S \xrightarrow{X_t} S^{'}$时间步$t$，计算这个弧在时间步$t$产生的观测$X=X_t$的概率\begin{equation}c(S\rightarrow^{X_t},t)=\frac{1}{P(X)}\times P_{S\rightarrow^{X_t}S^{'}}\times \alpha(S,t-1) \times \beta(S^{'},t)\end{equation}
+%  \item 对所有时间步下由状态$S$跳转到$S^{'}$的所有情况求和。\begin{equation}c(S\rightarrow S^{})=\sum_{t=1}^T c(S\rightarrow^X S^{'},t)\end{equation}
+%  \item 最后，根据最大似然估计，从状态$S$到状态$S^{'}$的状态转移\begin{equation}P_{S\rightarrow^X S^{'}}^{MLE}=\frac{c(S\rightarrow^X S^{'})}{\sum_{X,S^{'}} c(S\rightarrow^X S^{'})}\end{equation}
+%\end{enumerate}
 \begin{enumerate}
   \item 首先通过前向算法，计算$\alpha(S,t)$和$P(X)$。
   \item 再通过后向算法，计算$\beta(S,t)$。
-  \item 对于每一个弧$S\rightarrow^{X_t}S^{'}$及时间步$t$，计算这个弧在时间步$t$产生的观测$X=X_t$的概率\begin{equation}c(S\rightarrow^{X_t},t)=\frac{1}{P(X)}\times P_{S\rightarrow^{X_t}S^{'}}\times \alpha(S,t-1) \times \beta(S^{'},t)\end{equation}
-  \item 对所有时间步下由状态$S$跳转到$S^{'}$的所有情况求和。\begin{equation}c(S\rightarrow S^{})=\sum_{t=1}^T c(S\rightarrow^X S^{'},t)\end{equation}
-  \item 最后，根据最大似然估计，从状态$S$到状态$S^{'}$的状态转移\begin{equation}P_{S\rightarrow^X S^{'}}^{MLE}=\frac{c(S\rightarrow^X S^{'})}{\sum_{X,S^{'}} c(S\rightarrow^X S^{'})}\end{equation}
+  \item 对于每一个弧$S\xrightarrow{X_t}S^{'}$和$S \xrightarrow{X_t} S^{'}$时间步$t$，计算这个弧在时间步$t$产生的观测$X=X_t$的概率\begin{equation}c(S\xrightarrow {X_t},t)=\frac{1}{P(X)}\times P_{S\xrightarrow {X_t}S^{'}} \times \alpha(S,t-1) \times \beta(S^{'},t)\end{equation}
+  \item 对所有时间步下由状态$S$跳转到$S^{'}$的所有情况求和。\begin{equation}c(S\rightarrow S^{})=\sum_{t=1}^T c(S\xrightarrow X S^{'},t)\end{equation}
+  \item 最后，根据最大似然估计，从状态$S$到状态$S^{'}$的状态转移\begin{equation}P_{S\xrightarrow X S^{'}}^{MLE} =\frac{c(S\xrightarrow X S^{'})}{\sum_{X,S^{'}} c(S\xrightarrow X S^{'})}\end{equation}
 \end{enumerate}
 以上为使用Baum-Welch算法计算HMM状态转移概率的过程。
 
-尽管GMM-HMM模型被成功应用到声学建模中，但GMM-HMM框架本身依然存在很多问题，比如HMM模型本身的条件独立假设的限制。随着神经网络模型理论及深度学习技术的发展繁荣，目前DNN模型已经取代了GMM模型，并且人们也逐渐使用RNN模型(循环神经网络)替换HMM模型，来对语音信号的序列特性建模。
+尽管GMM-HMM模型被成功应用到声学建模中，但GMM-HMM框架本身依然存在很多问题，比如HMM模型本身的条件独立假设的限制。随着神经网络模型理论及深度学习技术的发展繁荣，目前DNN模型已经取代了GMM模型，并且人们也逐渐使用RNN模型(循环神经网络)替换HMM模型，来对语音信号的时序特性建模。
 \section{目前广泛使用的DNN-HMM方法}
-在DNN模型被广泛应用到语音识别之前，GMM-HMM一直在声学模型上占主导地位。2006年之后，Hinton等人提出了DNN预训练方法，通过预训练受限玻尔兹曼机来初始化DNN模型，使得训练深度的神经网络成为可能。之后，DNN模型逐步取代GMM模型，DNN-HMM成为声学建模的主流方法。与GMM-HMM相比，DNN-HMM的优势在于使用DNN这一强大的判别模型替代传统的GMM模型来计算HMM的状态发射概率。图~\ref{fig:dnnhmm}~为DNN-HMM声学模型的结框图。
+在DNN模型被广泛应用到语音识别之前，GMM-HMM一直在声学模型上占主导地位。2006年之后，Hinton等人提出了DNN预训练方法，通过预训练受限玻尔兹曼机来初始化DNN模型，使得训练深度的神经网络成为可能。之后，DNN模型逐步取代GMM模型，DNN-HMM成为声学建模的主流方法。与GMM-HMM相比，DNN-HMM的优势在于使用DNN这一强大的判别模型替代传统的GMM模型来计算HMM的状态发射概率。图~\ref{fig:dnnhmm}~为DNN-HMM声学模型的结构框图。
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=1.0\textwidth]{dnnhmm}
