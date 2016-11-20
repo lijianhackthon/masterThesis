@@ -5,7 +5,7 @@
 \section{传统的GMM-HMM方法}
 在DNN-HMM模型兴起之前，GMM-HMM作为通用算法，一直在声学模型上占主导地位，几乎所有大型的实用语音识别系统都采用GMM-HMM作为其声学模型。GMM-HMM模型使用HMM模型对语音信号的时序特性建模，使用GMM模型计算每个隐马尔科夫模型的状态发射概率。本节首先介绍GMM模型的参数估计，接着再介绍GMM-HMM模型的训练过程。
 \subsection{GMM模型的定义}
-GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合高斯模型之前，首先要介绍一下高斯分布。当一个连续随机变量$x$的概率密度函数满足：\begin{equation}p(x)=\frac{1}{\sqrt{2\pi\sigma}}e^{\frac{-(x-u)^2}{2\sigma^2}}\end{equation}时，随机变量$x$服从均值为$u$，方差为$\sigma^2$的高斯分布，记作$x\sim \mathcal{N}(\mu,\sigma^2)$。因为$x$为标量，因此又叫单变量的高斯分布。当$x$变为向量$X=(x_1,x_2,...,x_k)$时，$X$的高斯分布成为多变量的高斯分布，此时$X$的概率密度函数满足\begin{equation}p(X)=\frac{1}{(2\pi)^{\frac{k}{2}}|\Sigma|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu)^T\Sigma^{-1}(X-\mu)} \end{equation}
+GMM模型指的是混合高斯模型（Gaussian Mixture Model）。在介绍混合高斯模型之前，首先要介绍一下高斯分布。当一个连续随机变量$x$ 的概率密度函数满足：\begin{equation}p(x)=\frac{1}{\sqrt{2\pi\sigma}}e^{\frac{-(x-u)^2}{2\sigma^2}}\end{equation} 时，随机变量$x$服从均值为$u$，方差为$\sigma^2$的高斯分布，记作$x\sim \mathcal{N}(\mu,\sigma^2)$。因为$x$为标量，因此又叫单变量的高斯分布。当$x$变为向量$X=(x_1,x_2,...,x_k)$时，$X$的高斯分布成为多变量的高斯分布，此时$X$的概率密度函数满足\begin{equation}p(X)=\frac{1}{(2\pi)^{\frac{k}{2}}|\Sigma|^{\frac{1}{2}}}e^{-\frac{1}{2}(X-\mu)^T\Sigma^{-1}(X-\mu)} \end{equation}
 其中$X$和$\mu$均为k维的向量，$\Sigma$为$k\times k$的协方差矩阵。记作$X\sim \mathcal{N}(\mu,\Sigma)$。
 
 以上是单个的多变量高斯模型，接下来是混合的多变量高斯模型。
@@ -13,7 +13,7 @@ GMM模型指的是混合高斯模型(Gaussian Mixture Model)。在介绍混合�
 \subsection{GMM模型的参数估计}\label{acousticmodel}
 GMM模型的参数包括混合高斯数$M$、每个高斯所占权重$c_m$、每个高斯对应的均值向量$\mu_m$和协方差矩阵$\Sigma_m$。当随机变量$X$的两个维度不相关时，其协方差为零。所以如果随机变量$X$各维度之间都不相关，此时协方差矩阵为对角阵，可以大大减少模型参数。因此，语音识别在提取MFCC特征时，需要做DCT变换将频谱变为倒谱，可以降低MFCC各维度之间的相关性，保证后续的GMM可以使用对角阵。
 
-EM算法(Expectation-Maximization)是训练GMM模型的主要工具。EM算法为迭代算法，每次迭代都包含两步：E步和M步。其核心思想是：对于有$M$个成分的混合高斯模型，假设观测到的样本点$X$服从$M$个成分中的某一个成分$GMM_m$的概率分布，但不能确定具体是哪一个成分。如果能够得到$x$具体是由哪个成分得到的，那么整个模型就不再包含隐变量，可以直接使用最大似然估计(MLE)得到均值向量$\mu_m$ 以及方差矩阵$\Sigma_m$。EM算法不直接指定$x$具体由哪个成分得到，而是在算法的E步时，计算每个高斯成分对这个样本点的占有概率。得到这些后验概率之后，整个模型不再包含隐变量，接下来就是M步。通过最大似然估计，更新参数$c_m$、$mu_m$、$\Sigma_m$。EM算法的具体公式如下。
+EM算法（Expectation-Maximization）是训练GMM模型的主要工具。EM算法为迭代算法，每次迭代都包含两步：E步和M步。其核心思想是：对于有$M$个成分的混合高斯模型，假设观测到的样本点$X$服从$M$个成分中的某一个成分$GMM_m$的概率分布，但不能确定具体是哪一个成分。如果能够得到$x$具体是由哪个成分得到的，那么整个模型就不再包含隐变量，可以直接使用最大似然估计（MLE）得到均值向量$\mu_m$ 以及方差矩阵$\Sigma_m$。EM算法不直接指定$x$具体由哪个成分得到，而是在算法的E步时，计算每个高斯成分对这个样本点的占有概率。得到这些后验概率之后，整个模型不再包含隐变量，接下来就是M步。通过最大似然估计，更新参数$c_m$、$mu_m$、$\Sigma_m$。EM算法的具体公式如下。
 
 E步：
 \begin{equation}
@@ -47,7 +47,7 @@ GMM-HMM模型训练使用前后向算法，又称作Baum-Welch算法。Baum-Welc
 \end{enumerate}
 以上为使用Baum-Welch算法计算HMM状态转移概率的过程。
 
-尽管GMM-HMM模型被成功应用到声学建模中，但GMM-HMM框架本身依然存在很多问题，比如HMM模型本身的条件独立假设的限制。随着神经网络模型理论及深度学习技术的发展繁荣，目前DNN模型已经取代了GMM模型，并且人们也逐渐使用RNN模型(循环神经网络)替换HMM模型，来对语音信号的时序特性建模。
+尽管GMM-HMM模型被成功应用到声学建模中，但GMM-HMM框架本身依然存在很多问题，比如HMM模型本身的条件独立假设的限制。随着神经网络模型理论及深度学习技术的发展繁荣，目前DNN模型已经取代了GMM模型，并且人们也逐渐使用RNN模型（Recurrent Neural Networks）替换HMM模型，来对语音信号的时序特性建模。
 \section{目前广泛使用的DNN-HMM方法}
 在DNN模型被广泛应用到语音识别之前，GMM-HMM一直在声学模型上占主导地位。2006年之后，Hinton等人提出了DNN预训练方法，通过预训练受限玻尔兹曼机来初始化DNN模型，使得训练深度的神经网络成为可能。之后，DNN模型逐步取代GMM模型，DNN-HMM成为声学建模的主流方法。与GMM-HMM相比，DNN-HMM的优势在于使用DNN这一强大的判别模型替代传统的GMM模型来计算HMM的状态发射概率。图~\ref{fig:dnnhmm}~为DNN-HMM声学模型的结构框图。
 \begin{figure}[htbp]
@@ -57,4 +57,4 @@ GMM-HMM模型训练使用前后向算法，又称作Baum-Welch算法。Baum-Welc
 \vspace{\baselineskip}
 \end{figure}
 \subsection{DNN-HMM模型训练步骤}
-DNN-HMM模型的训练可以使用内嵌的维特比算法(Embedded Viterbi)实现。DNN-HMM模型总共包含三个部分：DNN模型、HMM模型、状态的先验概率分布。由于DNN-HMM与GMM-HMM使用同样的三音素模型和HMM模型，所以在训练DNN-HMM之前，首先要训练GMM-HMM模型。由于DNN-HMM在模型训练时需要的每个句子的音素标注是由GMM-HMM模型对每个句子做强制对齐时得到的，因此得到一个好的GMM-HMM模型对训练DNN-HMM模型十分重要。训练好GMM-HMM模型之后，使用GMM-HMM模型对训练集的每个句子使用维特比算法得到状态对齐信息。再由状态对齐信息通过映射关系得到每个状态对应的senone。再通过切分信息将senone映射到实际的输入特征上。同时通过senone到特征的映射得到每个状态的先验概率分布。复制已经得到的GMM-HMM模型中的HMM模型，用作DNN-HMM模型中的HMM。接下来是DNN模型的预训练，通过训练深度置信网络(DBN)，将DBN的模型参数作为DNN的初始化参数，接着使用反向传播(Back Propagation)算法进行随机梯度下降，最终得到DNN模型。至此，DNN-HMM模型参数已全部得到。
+DNN-HMM模型的训练可以使用内嵌的维特比算法（Embedded Viterbi）实现。DNN-HMM模型总共包含三个部分：DNN模型、HMM模型、状态的先验概率分布。由于DNN-HMM与GMM-HMM使用同样的三音素模型和HMM模型，所以在训练DNN-HMM之前，首先要训练GMM-HMM模型。由于DNN-HMM在模型训练时需要的每个句子的音素标注是由GMM-HMM模型对每个句子做强制对齐时得到的，因此得到一个好的GMM-HMM模型对训练DNN-HMM模型十分重要。训练好GMM-HMM模型之后，使用GMM-HMM模型对训练集的每个句子使用维特比算法得到状态对齐信息。再由状态对齐信息通过映射关系得到每个状态对应的senone。再通过切分信息将senone映射到实际的输入特征上。同时通过senone到特征的映射得到每个状态的先验概率分布。复制已经得到的GMM-HMM模型中的HMM模型，用作DNN-HMM模型中的HMM。接下来是DNN模型的预训练，通过训练深度置信网络（Deep Belief Networks)，将DBN的模型参数作为DNN的初始化参数，接着使用反向传播（Back Propagation）算法进行随机梯度下降，最终得到DNN模型。至此，DNN-HMM模型参数已全部得到。
