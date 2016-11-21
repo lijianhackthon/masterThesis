@@ -129,7 +129,7 @@ SAcC全称是Subband Autocorrelation Classification的缩写，该方法首先�
 \end{figure}
 
 \subsection{Kaldi-Pitch方法}
-Kaldi-Pitch方法\cite{ghahremani2014pitch}属于数据驱动方法，是对经典的基频提取方法Getf0方法\cite{kleijn1995robust}的改进版本。Getf0方法通过计算归一化的互相关函数得到音频信号每一帧的一系列基频备选值，之后使用DP（Dynamic Programming）算法，根据局部和全局的信息，得到每一帧的最佳基频值，对于静音帧，直接将基频值赋成0。Kaldi-Pitch方法与Getf0方法的最大区别在于，Kaldi-Pitch并不直接决定每一帧是否为静音帧。对于静音帧，Kaldi-Pitch方法会将其基频赋成一个非零值，目的是保持基频曲线的连续性。但同时，Kaldi-Pitch方法引入了发声概率这个变量，用来描述该帧是非静音帧的概率。\cite{ghahremani2014pitch}的实验表明，用连续的基频曲线加上每一帧的发声概率作为声调信息，结合MFCC特征，在BABEL这个标准数据集上对多个语种的语音识别都取得了不错的识别效果。和Getf0方法一样，Kaldi-Pitch用来计算基频备选值的方法同样是基于归一化的互相关函数。假设$x_p,p=0,1,2,...$ 是采样后的语音信号，采样周期$T=1/F_s$，时间窗长度为$\omega$，窗移长度为$t$，每个时间窗内的采样点个数$n=\omega/T$，窗与窗之间相距的采样点个数$z=t/T$。那么，对于第$i$帧信号，延迟系数为$k$时，其对应的互相关系数$\phi_{ik}$的计算公式如下：
+Kaldi-Pitch方法\cite{ghahremani2014pitch}属于数据驱动方法，是对经典的基频提取方法Getf0方法\cite{kleijn1995robust}的改进版本。Getf0方法通过计算归一化的自相关函数得到音频信号每一帧的一系列基频备选值，之后使用DP（Dynamic Programming）算法，根据局部和全局的信息，得到每一帧的最佳基频值，对于静音帧，直接将基频值赋成0。Kaldi-Pitch方法与Getf0方法的最大区别在于，Kaldi-Pitch并不直接决定每一帧是否为静音帧。对于静音帧，Kaldi-Pitch方法会将其基频赋成一个非零值，目的是保持基频曲线的连续性。但同时，Kaldi-Pitch方法引入了发声概率这个变量，用来描述该帧是非静音帧的概率。\cite{ghahremani2014pitch}的实验表明，用连续的基频曲线加上每一帧的发声概率作为声调信息，结合MFCC特征，在BABEL这个标准数据集上对多个语种的语音识别都取得了不错的识别效果。和Getf0方法一样，Kaldi-Pitch用来计算基频备选值的方法同样是基于归一化的自相关函数。假设$x_p,p=0,1,2,...$ 是采样后的语音信号，采样周期$T=1/F_s$，时间窗长度为$\omega$，窗移长度为$t$，每个时间窗内的采样点个数$n=\omega/T$，窗与窗之间相距的采样点个数$z=t/T$。那么，对于第$i$帧信号，延迟系数为$k$时，其对应的自相关系数$\phi_{ik}$的计算公式如下：
 \begin{eqnarray}
 %\begin{equation}
 %\begin{aligned}
@@ -140,9 +140,9 @@ Kaldi-Pitch方法\cite{ghahremani2014pitch}属于数据驱动方法，是对经�
 \end{eqnarray}
 其中，$m=i*z$，i代表帧的标号，k代表延迟系数。
 
-对于每一帧信号$i$，NCCF的局部极大值点就是基频值的备选。根据上述公式，我们可以知道$-1.0\leqslant\phi_{ik}\leqslant1.0$，并且当延迟系数$k$接近基频的正整数倍时，$\phi_{ik}$接近于1.0。
+对于每一帧信号$i$，NACF的局部极大值点就是基频值的备选。根据上述公式，我们可以知道$-1.0\leqslant\phi_{ik}\leqslant1.0$，并且当延迟系数$k$接近基频的正整数倍时，$\phi_{ik}$接近于1.0。
 
-假设c是给定某一帧的NCCF值，其绝对值$a=abs(c)$。以下是通过分析Keele数据库的$log(\frac{count(voiced)}{count(unvoiced)})$曲线得到的公式：
+假设c是给定某一帧的NACF值，其绝对值$a=abs(c)$。以下是通过分析Keele数据库的$log(\frac{count(voiced)}{count(unvoiced)})$曲线得到的公式：
 \begin{equation}h=-5.2+5.4 e^{7.5 (a-1)}+4.8 a-2 e^{10 a}+4.2 e^{20 (a-1)}\end{equation}
 此处，h近似等于$log(\frac{count(voiced)}{count(unvoiced)})$，$p=\frac{1}{1+e^{-h}}$近似等于当前帧是非静音帧的概率。
 \subsection{声调相关特征}
